@@ -1,43 +1,45 @@
 //const fs = require("fs");
-const productModel = require("../models/productModel");
+//const productModel = require("../models/productModel");
+const { ProductManagerDb } = require("../dao/productManagerDb");
 
-class ProductManagerDb {
+class ProductsService {
   constructor(io) {
     this.io = io;
+    this.productsManagerDb = new ProductManagerDb()
   }
 
   // -------- Con este metodo creo 100 productos -------------------------------------
-  //   async createProducts() {
-  //     try {
-  //         const categoryes = ["fruta", "verdura"];
-  //         for (let i = 1; i <= 100; i++) {
-  //           const newProduct = new productModel({
-  //             title: `P ${i}`,
-  //             description: `Descripción del Producto ${i}`,
-  //             price: Math.floor(Math.random() * 100) + 1,
-  //             thumbnail: `Thumbnail del Producto ${i}`,
-  //             code: `COD${i}`,
-  //             stock: Math.floor(Math.random() * 10) + 1,
-  //             category:
-  //               categoryes[Math.floor(Math.random() * categoryes.length)],
-  //           });
+//   async createProducts() { 
+//     try {
+//         const categoryes = ["fruta", "verdura"];
+//         for (let i = 1; i <= 100; i++) {
+//           const newProduct = new productModel({
+//             title: `P ${i}`,
+//             description: `Descripción del Producto ${i}`,
+//             price: Math.floor(Math.random() * 100) + 1,
+//             thumbnail: `Thumbnail del Producto ${i}`,
+//             code: `COD${i}`,
+//             stock: Math.floor(Math.random() * 10) + 1,
+//             category:
+//               categoryes[Math.floor(Math.random() * categoryes.length)],
+//           });
 
-  //           await newProduct.save();
-  //           console.log(`Producto ${i} creado`);
-  //         }
-  //     } catch (e) {
-  //       console.log("Error al leer la db");
-  //       return { status: 500, data: "Error al leer la db" };
-  //     }
-  //   }
+//           await newProduct.save();
+//           console.log(`Producto ${i} creado`);
+//         }
+//     } catch (e) {
+//       console.log("Error al leer la db");
+//       return { status: 500, data: "Error al leer la db" };
+//     }
+//   }
   // ----------------------------------------------------------------------------------
 
   async getProducts() {
     try {
-      let products = await productModel.find();
+      let products = await this.productsManagerDb.getProducts();
       //let products = await productModel.find().explain("executionStats"); // .explain("executionStats") Agregandole esto me retorna un detalle de la consulta, dentro de la propiedad executionStages esta lo que nos interesa. que es en relacion a cantidad de registro y tiempos de respuesta.
       //console.log(products)
-      return products; // Como los objetos de mongo no son objetos json si no son bson,
+      return products.map((p) => p.toObject()); // Como los objetos de mongo no son objetos json si no son bson,
       // hay que pasarle p.toObject() a los bson. Esto convierte un objeto a un objeto plano de JavaScript (un objeto literal)
     } catch (e) {
       console.log("Error al leer la db");
@@ -45,9 +47,41 @@ class ProductManagerDb {
     }
   }
 
-  async getProductsPaginate(query, options) {
+  async getProductsPaginate(data) {
+    // ?limit=2&page=2&query=fruta&sort=asc  // esto podemos recibir en la consulta
+    const limit = parseInt(data.limit) || 10;
+    const page = parseInt(data.page) || 1;
+    const category = data.query || "";
+    let sort = parseInt(data.sort) == "desc" ? -1 : 1 || "";
+    sort = {price:sort}
+    //const sort = parseInt(data.sort) || " ";
+    const options = {limit,page,category,sort}
+    //const products = await productModel.paginate(query,{ limit , page , sort:{price:sort} })
+    //console.log(options)
+    let query = {}; // Define un objeto vacío para la consulta
+    if (category) {
+        query.category = category; // Agrega la categoría a la consulta si se proporciona
+    }
     try {
-      return await productModel.paginate(query, options);
+      const products = await this.productsManagerDb.getProductsPaginate(query,options)
+      const pDocs = products.docs
+      const payload = await pDocs.map((p)=>p.toObject());
+      // paguinate me retorna un objeto que contiene toda la info de paguinacion y un array llamado docs que ahi se encuentran los datos solicitados.
+      //console.log(payload)
+      const productsPaginate = {
+        status: "success",
+        payload,
+        totalPages: products.totalPages,
+        prevPage: products.prevPage,
+        nextPage: products.nextPage,
+        page: products.page,
+        hasPrevPage: products.hasPrevPage,
+        hasNextPage: products.hasNextPage,
+        prevLink: products.hasPrevPage == true ? `http://localhost:8080/realTimeProducts/?page=${products.prevPage}` : null,
+        nextLink: products.hasNextPage == true ? `http://localhost:8080/realTimeProducts/?page=${products.nextPage}` : null,
+      };
+      // paguinate me retorna un objeto que contiene toda la info de paguinacion y un array llamado docs que ahi se encuentran los datos solicitados.
+        return { status: 200, data: productsPaginate };
     } catch (e) {
       console.log("Error al leer la base de datos");
       return { status: 500, data: "Error al leer la base de datos" };
@@ -60,7 +94,7 @@ class ProductManagerDb {
         console.log("Debe enviar un ID valido");
         return { status: 400, data: "Debe enviar un ID valido" };
       }
-      const productId = await productModel.findById(id);
+      const productId = await this.productsManagerDb.findById(id);
       return { status: 200, data: productId };
       //return pId ;
     } catch (e) {
@@ -75,7 +109,7 @@ class ProductManagerDb {
         console.log("Debe enviar un codigo valido");
         return { status: 400, data: "Debe enviar un codigo valido" };
       }
-      const productCode = await productModel.find({ code: code });
+      const productCode = await this.productsManagerDb.find({ code: code });
       return { status: 200, data: productCode };
       //return pId ;
     } catch (e) {
@@ -83,7 +117,7 @@ class ProductManagerDb {
       return { status: 500, data: "Error al leer la base de datos" };
     }
   }
-
+  
   async deleteProduct(id) {
     console.log(id);
     try {
@@ -95,7 +129,7 @@ class ProductManagerDb {
         );
         return;
       }
-      const prodDelete = await productModel.deleteOne({ _id: id });
+      const prodDelete = await this.productsManagerDb.deleteOne({ _id: id });
       if (prodDelete.deletedCount != 1) {
         console.log(`El producto con id ${id} no existe`);
         this.io.emit(
@@ -141,9 +175,9 @@ class ProductManagerDb {
           "error",
           JSON.stringify({ error: 400, data: "Campos incompletos" })
         );
-        return { status: 200, data: "Campos incompletos" };
+        return  { status: 200, data: "Campos incompletos" };
       }
-      const productCode = await this.getProductByCode(code);
+      const productCode = await this.productsManagerDb.getProductByCode(code);
       //console.log(productCode)
       if (productCode.data.length == 0) {
         const newProduct = {
@@ -155,19 +189,18 @@ class ProductManagerDb {
           stock,
           category,
         };
-        const newProductInserted = await productModel.create(newProduct);
+        const newProductInserted = await this.productsManagerDb.create(newProduct);
         console.log(`Producto con codigo ${code} agregado correctamente`);
         this.io.emit("newProduct", JSON.stringify(newProductInserted));
-        return { status: 200, data: newProductInserted };
+        return  { status: 200, data: newProductInserted };
       }
-      this.io.emit(
-        "error",
-        JSON.stringify({
+      console.log("El codigo de producto ya existe");
+      this.io.emit("error", JSON.stringify({
           error: 400,
           data: `El codigo de producto ${code} ya existe`,
         })
       );
-      return { status: 200, data: `El codigo de producto ${code} ya existe` };
+      return  { status: 200, data: `El codigo de producto ${code} ya existe` };
     } catch (e) {
       console.log("Erro desconocido al agregar el producto");
       return {
@@ -199,7 +232,7 @@ class ProductManagerDb {
         );
         return;
       }
-      const productCode = await this.getProductByCode(code);
+      const productCode = await this.productsManagerDb.getProductByCode(code);
       if (productCode.data.length != 0) {
         // Existe entonces lo edito
         console.log("existe entonces lo edito");
@@ -212,7 +245,7 @@ class ProductManagerDb {
           stock: stock || productId.stock,
           category: category || productId.category,
         };
-        await productModel.updateOne({ _id: id }, editProduct);
+        await this.productsManagerDb.updateOne({ _id: id }, editProduct);
         console.log(`El producto con codigo: ${code} se edito correctamente`);
         this.io.emit(
           "editProduct",
@@ -245,4 +278,4 @@ class ProductManagerDb {
   }
 }
 
-module.exports = { ProductManagerDb };
+module.exports = { ProductsService };

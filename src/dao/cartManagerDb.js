@@ -84,7 +84,7 @@ class CartManager {
     // }  
     // *********************************************
     try {
-      //console.log(data)
+      console.log(data)
       const cart = await cartModel.findOne({ email: data.email });
       //console.log(data.products[0].product)  // Id del producto a agregar
       if (cart == null) {
@@ -108,12 +108,12 @@ class CartManager {
         await cartFound.save();
         this.io.emit(
           "addedProductToCart",
-          JSON.stringify({ error: 200, data:`Ya existe el producto en el carrito ${data.email}, se le sumo la cantidad ${data.products[0].quantity}`})
+          JSON.stringify({ error: 200, data:`Ya existe el producto en el carrito, se le sumo la cantidad ${data.products[0].quantity}`})
         );
-        console.log(`Ya existe el producto en el carrito ${data.email}, se le sumo la cantidad ${data.products[0].quantity}`)
+        console.log(`Ya existe el producto en el carrito, se le sumo la cantidad ${data.products[0].quantity}`)
         return {
           status: 200,
-          respuesta: `Ya existe el producto en el carrito ${data.email}, se le sumo la cantidad ${data.products[0].quantity}`
+          respuesta: `Ya existe el producto en el carrito, se le sumo la cantidad ${data.products[0].quantity}`
         };
       }
 

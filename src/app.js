@@ -39,7 +39,7 @@ app.set("views", "./views");
 app.set("view engine", "handlebars");
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use(flash());
 
@@ -53,7 +53,7 @@ app.use(
     store: MongoStore.create({
       // MongoStore.create, crea una session en la db de mongo
       mongoUrl: CONNECTION_MONGO, // Le indicamos que db crear la session
-      ttl: 120, // time to live; tiempo de vida, esta en SEGUNDOS.
+      ttl: 1200, // time to live; tiempo de vida, esta en SEGUNDOS.
       //retrien: 0                 // Cantidad de reintentos que hace para leer el archivo de ssesion
     }),
     secret: "estaEsMiLlaveSecreta",

@@ -1,18 +1,107 @@
-<nav class="navbar bg-dark bg-body-tertiary">
-  <div class="container-fluid">
-    <button
-      class="btn border border-body text-light"
-      id="logOut"
-      name="logOut"
-    >Cerrar sesion</button>
-    <p
-      class="text-light d-inline me-3 mt-2"
-      id="email"
-      name="email"
-    >{{userSession}}</p>
-  </div>
+<nav class="navbar navbar-expand-sm navbar-light bg-dark">
+    <ul class="navbar-nav mr-auto d-inline">
+      <li class="nav-item">
+        <a class="nav-link text-light" href="#">Link</a>
+      </li>
+      </ul>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    {{!-- <ul class="navbar-nav mr-auto"> --}}
+      {{!-- <li class="nav-item active">
+        <a class="nav-link text-light" href="#">Home</a>
+      </li> --}}
+      {{!-- <li class="nav-item">
+        <a class="nav-link text-light" href="#">Link</a>
+      </li> --}}
+      {{!-- <li class="nav-item dropdown">
+        <a
+          class="nav-link dropdown-toggle text-light btn border border-body"
+          href="#"
+          id="navbarDropdown"
+          role="button"
+          data-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          Dropdown
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" class="dropdown-item text-light">Cerrar
+            sesion</a>
+          <a class="dropdown-item" href="#">Another action</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#">Something else here</a>
+        </div>
+      </li> --}}
+      {{!-- <li class="nav-item">
+        <a class="nav-link disabled text-light" href="#">Disabled</a>
+      </li> --}}
+    {{!-- </ul>
+    <form class="form-inline my-2 my-lg-0">
+      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form> --}}
 
+  </div>
+  <li class="nav-item dropdown">
+    <a
+      class="nav-link dropdown-toggle text-light btn border border-body"
+      href="#"
+      id="navbarDropdown"
+      role="button"
+      data-toggle="dropdown"
+      aria-haspopup="true"
+      aria-expanded="false"
+    >
+      {{userSession}}
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+      <a
+        class="dropdown-item"
+        class="dropdown-item text-light"
+        id="logOut"
+        name="logOut"
+      >Cerrar sesion</a>
+      {{! <button class="dropdown-item">Another action</button>
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item" href="#">Something else here</a> }}
+    </div>
+  </li>
 </nav>
+
+{{!-- ---------------------------------------------------
+--------------------------------------------------- --}}
+
+<nav class="navbar navbar-expand-sm navbar-light bg-dark">
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto d-inline">
+      <li class="nav-item">
+        <a class="nav-link text-light" href="#">Link</a>
+      </li>
+      </ul>
+      <form class="justify-content-end">
+      <li class="nav-item dropdown justify-content-end">
+        <a class="nav-link dropdown-toggle text-light" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{userSession}}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="#">Cerrar sesion</a>
+          {{!-- <a class="dropdown-item" href="#">Another action</a> --}}
+          {{!-- <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#">Something else here</a> --}}
+        </div>
+      </li>
+</form>
+    </ul>
+  </div>
+</nav>
+
+{{!-- ---------------------------------------------------
+--------------------------------------------------- --}}
+
 <div class="mx-3 mt-2">
   <div class="row d-flex">
     <div class="col-3">
@@ -221,7 +310,7 @@
   </div>
 </div>
 
-<!-- LLamamos al servisor io para ejecutarlo aca en el frontend, 
+<!-- LLamamos al servisor io para ejecutarlo aca en el frontend,
 como esto ejecuta el servidor este ya establece la comunicacion cada vez que se actualiza la paguina -->
 <script src="/socket.io/socket.io.js"></script>
 
@@ -237,4 +326,3 @@ como esto ejecuta el servidor este ya establece la comunicacion cada vez que se 
 
 <!-- sweetalert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-

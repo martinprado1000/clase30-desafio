@@ -3,6 +3,7 @@ console.log(socket);
 
 // Obtengo los id de cada elemento
 const login = document.getElementById("logOut");
+const goToCart = document.getElementById("goToCart");
 const submitForm = document.getElementById("formProducts");
 const btnSubmit = document.getElementById("submit");
 const btnUpdate = document.getElementById("update");
@@ -52,6 +53,7 @@ const limpiarFormulario = () => {
 };
 
 logOut.addEventListener("click", async (e) => {
+  console.log("asdasdasd")
   await fetch("/api/register", {
     method: "DELETE",
     headers: { "Content-type": "application/json;charset=UTF-8" },
@@ -63,6 +65,18 @@ logOut.addEventListener("click", async (e) => {
     });
 });
 
+goToCart.addEventListener("click", async (e) => {
+  console.log("holaaaa")
+  // await fetch("/api/register", {
+  //   method: "DELETE",
+  //   headers: { "Content-type": "application/json;charset=UTF-8" },
+  // })
+  //   .then((res) => JSON.stringify(res))
+  //   .then((res) => {
+  //     console.log("se destruyo la sesion");
+  //     window.location.href = "http://localhost:8080/login";
+  //   });
+});
 //Editar producto
 const buttonFn = () => {
   // ---- Editar producto --------
@@ -194,7 +208,7 @@ socket.on("newProduct", (data) => {
   cellAddCart.appendChild(h5logged);
   buttonFn();
   Swal.fire({
-    title: `Producto con codigo ${product.code} agregado correctamente`,
+    title: `Producto con codigo ${product.codeInput} agregado correctamente`,
     icon: "success", // succes , warning , info , question
     timer: 2000,
     timerProgressBar: true,

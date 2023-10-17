@@ -1,16 +1,17 @@
 //const { ProductManager } = require("../dao/productManager");
-const { ProductManagerDb } = require("../dao/productManagerDb");
+//const { ProductManagerDb } = require("../dao/productManagerDb");
+const { ProductsService } = require("../services/productsServices")
 
 const pagesFn = (io) => {
   //instacio el manager
   //const manager = new ProductManager("db/products.json", io);
-  const manager = new ProductManagerDb(io);
+  const productsService = new ProductsService(io);
 
   //get Products
   const home = async (req, res) => {
     try {
       const limitInt = parseInt(req.query.limit);
-      const data = await manager.getProducts();
+      const data = await productsService.getProducts();
       if (!limitInt) {
         res.render("home.handlebars", { data });
       } else {
@@ -28,7 +29,7 @@ const pagesFn = (io) => {
   const homeById = async (req, res) => {
     try {
       const pid = parseInt(req.params.pid);
-      const data = await manager.getProductById(pid);
+      const data = await productsService.getProductById(pid);
       res.render("home.handlebars", { data });
     } catch (e) {
       console.log(e);
@@ -38,7 +39,7 @@ const pagesFn = (io) => {
 
   const createProducts = async (req, res) => { // Con este metodo creo 100 productos
     try {
-      await manager.createProducts();
+      await productsService.createProducts();
     } catch (e) {
       console.log(e);
       return { Error: "Algo salio mal con la consulta" };
@@ -60,7 +61,7 @@ const pagesFn = (io) => {
     try {
       const userSession = req.user.name;// Recordar que con passport la session se guarda en req.user
       const query = req.query;
-      const response = await manager.getProductsPaginate(query);
+      const response = await productsService.getProductsPaginate(query); 
       const data = response.data 
       // if (user.rol == "admin") {
       //   res.json({  
@@ -79,7 +80,7 @@ const pagesFn = (io) => {
   const realTimeProductById = async (req, res) => {
     try {
       const pid = req.params.pid;
-      const data = await manager.getProductById(pid);                                                                                                          
+      const data = await productsService.getProductById(pid);                                                                                                          
       //console.log(data.respuesta)
       const product = data.respuesta
       res.json(product);
@@ -92,7 +93,7 @@ const pagesFn = (io) => {
   const postRealTimeProducts = async (req, res) => {
     try {
       const product = req.body;
-      const data = await manager.addProduct(product);
+      const data = await productsService.addProduct(product);
       res.json(data);
       // if ( data.status == 400 ) {
       //   console.log(data.status)
@@ -113,7 +114,7 @@ const pagesFn = (io) => {
     try {
       const pid = req.params.pid;
       //console.log(pid)
-      const data = await manager.deleteProduct(pid);
+      const data = await productsService.deleteProduct(pid);
       res.json(data);
     } catch (e) {
       console.log(e);
@@ -125,7 +126,7 @@ const pagesFn = (io) => {
     try{
       const pid = req.params.pid;
       const product = req.body;
-      const data = await manager.updateProduct(pid,product);
+      const data = await productsService.updateProduct(pid,product);
       //console.log(data)
       //res.status(data.status).send(data.respuesta);
       //res.render("realTimeProductsDb.handlebars", {data});
